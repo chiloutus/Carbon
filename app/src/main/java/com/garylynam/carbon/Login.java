@@ -10,10 +10,20 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+
+import com.garylynam.util.PostReq;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 
 public class Login extends Activity {
@@ -50,10 +60,49 @@ public class Login extends Activity {
 
     public void login(View v){
         //TODO create login Script
+        JSONObject creds = new JSONObject();
+        EditText user = (EditText)findViewById(R.id.username);
+        EditText passwd = (EditText)findViewById(R.id.passwd);
 
+        try {
+            creds.put("username",user.getText().toString());
+            creds.put("passwd",md5(passwd.getText().toString()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         Intent i = new Intent(this.getApplicationContext(),MainMenu.class);
-        startActivity(i);
+        PostReq p = new PostReq(creds);
+
+        try {
+            if(p.execute("http://192.168.0.15:5000/mobile/login").get().equals("True")){
+               startActivity(i);
+            }
+            else {
+                //TODO handle exceptions
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
 
     }
+    private String md5(String plaintext){
+        MessageDigest m = null;
+        try {
+            m = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        m.reset();
+        m.update(plaintext.getBytes());
+        byte[] digest = m.digest();
+        BigInteger bigInt = new BigInteger(1,digest);
+        String hashtext = bigInt.toString(16);
+        return hashtext;
+}
+
+
 
 }

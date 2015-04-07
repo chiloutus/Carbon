@@ -22,6 +22,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.garylynam.util.PostReq;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -58,6 +60,9 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
     private boolean mResolvingError = false;
     Location mLastLocation;
     BluetoothSocket socket = null;
+    String url = "http://chiloutus.pythonanywhere.com/new/timestamp";
+    JSONObject data = new JSONObject();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +78,7 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
 
 
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -111,6 +117,7 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
         }
 
     }
+
     public void selectBlueTooth() {
 
         ArrayList deviceStrs = new ArrayList<String>();
@@ -119,7 +126,7 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
 
 
         BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(btAdapter == null){
+        if (btAdapter == null) {
 
         }
         Set pairedDevices = btAdapter.getBondedDevices();
@@ -150,8 +157,6 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
                 UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
 
-
-
                 try {
                     socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 
@@ -162,7 +167,9 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
 
 
                 //begin to upload data
-                new HttpAsyncTask().execute("http://chiloutus.pythonanywhere:5000/new/timestamp");
+                PostReq p = new PostReq(data);
+
+                p.execute(url);
             }
         });
         alertDialog.setTitle("Choose Bluetooth device");
@@ -179,114 +186,10 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
 
     }
 
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
 
 
-            return POST(urls[0],1);
-        }
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    public static String POST(String url,int type){
-        InputStream inputStream = null;
-        String result = "";
-        try {
-
-            // 1. create HttpClient
-            HttpClient httpclient = new DefaultHttpClient();
-
-            // 2. make POST request to the given URL
-            HttpPost httpPost = new HttpPost(url);
-            String json = "";
-            JSONObject jsonObject = new JSONObject();
-            if(type ==1) {
-                // 3. build jsonObject
-
-                jsonObject.accumulate("GPSCoords", "44.968046,-94.420307");
-                jsonObject.accumulate("FuelLvl", "100");
-                jsonObject.accumulate("FuelCsmt", "-10");
-                jsonObject.accumulate("RPM", "10");
-                jsonObject.accumulate("Temp", "75");
-                jsonObject.accumulate("Trblecode", "");
-                jsonObject.accumulate("idJourney", 1);
-                // 4. convert JSONObject to JSON to String
-                json = jsonObject.toString();
-            }
-            else{
-                jsonObject.accumulate("Registration", reg);
-            }
-                    
-
-            // 5. set json to StringEntity
-            StringEntity se = new StringEntity(json);
-
-            // 6. set httpPost Entity
-            httpPost.setEntity(se);
-
-            // 7. Set some headers to inform server about the type of the content
-            httpPost.setHeader("Accept", "application/json");
-            httpPost.setHeader("Content-type", "application/json");
-
-            // 8. Execute POST request to the given URL
-            HttpResponse httpResponse = httpclient.execute(httpPost);
-
-            // 9. receive response as inputStream
-            inputStream = httpResponse.getEntity().getContent();
-
-            // 10. convert inputstream to string
-            if(inputStream != null)
-                result = convertInputStreamToString(inputStream);
-            else
-                result = "Did not work!";
-
-        } catch (Exception e) {
-            Log.d("InputStream", e.getLocalizedMessage());
-        }
-
-        // 11. return result
-        return result;
-    }
-
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        String line = "";
-        String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line;
-
-        inputStream.close();
-        return result;
-
-    }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_uploading, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     /**
      * A placeholder fragment containing a simple view.
@@ -303,6 +206,7 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
             return rootView;
         }
     }
+
     private Runnable updateTimerThread = new Runnable()
     {
         public void run()
@@ -355,11 +259,11 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
     private class GPSListener implements LocationListener {
         @Override
         public void onLocationChanged(Location loc) {
-            String longitude = "Longitude: " +loc.getLongitude();
-            String latitude = "Latitude: " +loc.getLatitude();
+            String longitude = "Longitude: " + loc.getLongitude();
+            String latitude = "Latitude: " + loc.getLatitude();
 
     /*----------to get City-Name from coordinates ------------- */
-            String cityName=null;
+            String cityName = null;
             List<Address> addresses;
             Geocoder gcd = new Geocoder(getBaseContext(),
                     Locale.getDefault());
@@ -368,17 +272,17 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
                         .getLongitude(), 1);
                 if (addresses.size() > 0)
                     System.out.println(addresses.get(0).getLocality());
-                cityName=addresses.get(0).getLocality();
+                cityName = addresses.get(0).getLocality();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            String s = longitude+"\n"+latitude +
-                    "\n\nMy Currrent City is: "+cityName;
-
+            String s = longitude + "\n" + latitude +
+                    "\n\nMy Currrent City is: " + cityName;
 
 
         }
+
 
         @Override
         public void onProviderDisabled(String provider) {
@@ -395,7 +299,7 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
                                     int status, Bundle extras) {
             // TODO Auto-generated method stub
         }
-
     }
+
 
 }
