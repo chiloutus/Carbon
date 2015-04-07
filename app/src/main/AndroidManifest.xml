@@ -2,11 +2,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.garylynam.carbon" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <receiver
+            android:name="com.garylynam.carbon.AlarmReceiver"
+            android:exported="false" >
+        </receiver>
+
         <activity
             android:name="com.garylynam.carbon.Login"
             android:label="@string/app_name" >
@@ -17,12 +27,23 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.garylynam.carbon.Menu"
+            android:name="com.garylynam.carbon.MainMenu"
             android:label="@string/title_activity_menu" >
         </activity>
         <activity
-            android:name=".Uploading"
+            android:name="com.garylynam.carbon.Uploading"
             android:label="@string/title_activity_uploading" >
+        </activity>
+
+        <service
+            android:name="com.garylynam.util.DataPackage"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+        <activity
+            android:name="com.garylynam.carbon.Settings"
+            android:label="@string/title_activity_settings" >
         </activity>
     </application>
 

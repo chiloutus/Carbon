@@ -26,7 +26,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
                     android:ems="10"
-                    android:id="@+id/email" android:layout_column="4" android:textColor="#fffffff"
+                    android:id="@+id/email" android:layout_column="4" android:textColor="#ffffff"
                     android:hint="@string/exampleEmail"/>
         </TableRow>
         <TableRow

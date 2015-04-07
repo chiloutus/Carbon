@@ -2,8 +2,18 @@ package com.garylynam.carbon;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 
 public class Login extends Activity {
@@ -15,12 +25,12 @@ public class Login extends Activity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(android.view.Menu Menu) {
-        // Inflate the Menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_login, Menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_login, menu);
+//        return true;
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -38,7 +48,7 @@ public class Login extends Activity {
     }
 
 
-    public void login(){
+    public void login(View v){
         //TODO create login Script
 
         Intent i = new Intent(this.getApplicationContext(),MainMenu.class);

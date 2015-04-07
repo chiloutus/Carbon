@@ -9,5 +9,7 @@
     <string name="Password">Password</string>
     <string name="title_activity_menu">Menu</string>
     <string name="title_activity_uploading">uploading</string>
+    <string name="gpsText">Sample GPS</string>
+    <string name="title_activity_settings">Settings</string>
 
 </resources>

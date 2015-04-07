@@ -17,7 +17,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/imageButton" android:background="@drawable/journeybtnbkg"
-                android:contentDescription="Begin Logging Using the OBD adapter"/>
+                android:contentDescription="Begin Logging Using the OBD adapter" android:onClick="startJourney"/>
     </RelativeLayout>
     <FrameLayout
             android:layout_width="fill_parent"
